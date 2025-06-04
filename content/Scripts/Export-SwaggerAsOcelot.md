@@ -1,6 +1,6 @@
 ---
 title: Export-SwaggerAsOcelot - Conversão de Swagger para configuração Ocelot
-draft: true
+draft: false
 tags:
   - dev
   - ps1
