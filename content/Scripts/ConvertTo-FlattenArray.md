@@ -47,3 +47,12 @@ function ConvertTo-FlattenArray {
     # Retorna o array resultante achatado
     return $result
 }
+```
+
+## Exemplo de uso
+```powershell
+$input = @(1, @(2, 3), @(4, @(5, 6)), 7)
+$flattened = ConvertTo-FlattenArray -array $input
+Write-Output $flattened
+# Resultado: 1 2 3 4 5 6 7
+```
