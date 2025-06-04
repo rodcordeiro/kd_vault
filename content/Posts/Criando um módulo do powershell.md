@@ -5,7 +5,6 @@ tags:
   - dev
   - ps1
   - post
-description: Como criar um módulo do powershell simples e publicar na PSGallery
 socialDescription: Como criar um módulo do powershell simples e publicar na PSGallery
 socialImage: https://rodcordeiro.github.io/shares/img/rodcordeiro.png
 linkedin: https://www.linkedin.com/pulse/criando-um-m%25C3%25B3dulo-do-powershell-rodrigo-cordeiro-p5kzf

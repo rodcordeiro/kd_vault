@@ -6,7 +6,6 @@ tags:
   - ps1
   - post
 socialDescription: A walkthrough about what is git and the basic command with simple examples for local repository management and integration with remote repository like github
-description: A walkthrough about what is git and the basic command with simple examples for local repository management and integration with remote repository like github
 socialImage: https://rodcordeiro.github.io/shares/img/gitflow.jpg
 ---
 # TL;DR;
