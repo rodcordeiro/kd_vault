@@ -1,8 +1,6 @@
 ---
 title: Rod's KD
 draft: false
-tags:
-  - example-tag
 description: Combão de informações
 socialDescription: Combão de informações
 socialImage: https://rodcordeiro.github.io/shares/img/rodcordeiro.png

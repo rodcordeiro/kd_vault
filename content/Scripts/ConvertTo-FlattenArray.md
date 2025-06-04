@@ -4,18 +4,22 @@ draft: false
 tags:
   - dev
   - ps1
-  - util
-socialDescription: Função PowerShell para transformar arrays aninhados em um único array plano.
+  - script
+socialDescription: Função PowerShell recursiva para transformar arrays aninhados em um único array plano.
 socialImage: https://rodcordeiro.github.io/shares/img/IMG-20180223-WA0036.jpg
 ---
 
 ## Intuito
+Função utilitária que transforma arrays aninhados (arrays dentro de arrays) em um único array plano.
 
-Esta função tem como objetivo "achatar" (flatten) arrays aninhados, ou seja, transformar uma estrutura como `[[1, 2], [3, [4, 5]]]` em um único array plano como `[1, 2, 3, 4, 5]`.
+### Parâmetros:
+- `array` (`object[]`): Array de entrada que pode conter elementos e subarrays.
 
-Muito útil quando se manipula listas de objetos compostas por outras listas (como ocorre após agregações ou mapeamentos complexos em JSON).
+### Retorno:
+- Um array plano com todos os itens do array original, removendo qualquer aninhamento.
 
----
+Exemplo: `@(1, @(2, 3), @(4, @(5, 6)))` vira `1, 2, 3, 4, 5, 6`.
+
 
 ## Script
 ```powershell
@@ -25,31 +29,27 @@ function ConvertTo-FlattenArray {
         [object[]]$array
     )
 
-    # Inicializa array vazio para armazenar os resultados
+    # Inicializa o array de saída
     $result = @()
 
-    # Percorre cada item do array de entrada
     foreach ($item in $array) {
-
-        # Verifica se o item é uma coleção (IEnumerable), mas não um Hashtable
-        # Isso garante que dicionários (objetos JSON) não sejam desmembrados erroneamente
+        # Se for uma coleção (IEnumerable), mas não um dicionário (Hashtable)
         if ($item -is [System.Collections.IEnumerable] -and $item -isnot [System.Collections.Hashtable]) {
-
-            # Recursivamente chama a função para processar subarrays
+            # Chamada recursiva para explorar subníveis
             $result += ConvertTo-FlattenArray -array $item
         }
         else {
-            # Caso contrário, adiciona o item diretamente ao resultado final
+            # Adiciona o item diretamente
             $result += $item
         }
     }
 
-    # Retorna o array resultante achatado
     return $result
 }
 ```
 
-## Exemplo de uso
+## Exemplos de uso
+
 ```powershell
 $input = @(1, @(2, 3), @(4, @(5, 6)), 7)
 $flattened = ConvertTo-FlattenArray -array $input

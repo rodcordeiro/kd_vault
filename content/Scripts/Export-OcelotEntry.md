@@ -1,29 +1,29 @@
 ---
-title: Export-OcelotEntry - Combinação de múltiplos Swagger para configuração Ocelot
+title: Export-OcelotEntry – Exportação de rotas Ocelot a partir de múltiplos Swagger
 draft: false
 tags:
   - dev
   - ps1
   - script
-socialDescription: Função PowerShell que consolida múltiplos Swagger JSON em uma única configuração Ocelot, com suporte a merge e preservação de rotas existentes.
+socialDescription: Função PowerShell que gera um arquivo `ocelot.json` a partir de múltiplas definições Swagger, consolidando rotas e configurações para gateway Ocelot.
 socialImage: https://rodcordeiro.github.io/shares/img/IMG-20180223-WA0036.jpg
 ---
 
 ## Intuito
+Consolida várias definições Swagger de APIs (identificadas por chave e porta) em um único arquivo `ocelot.json`, compatível com o gateway Ocelot.  
+Permite reaproveitar rotas de um arquivo de origem e configurar opções como ambiente de produção e controle de rate limit.
 
-A função `Export-OcelotEntry` centraliza a geração do arquivo `ocelot.json` para o [Ocelot API Gateway](https://ocelot.readthedocs.io), combinando múltiplas definições Swagger/OpenAPI. Ela suporta:
+Parâmetros:
+- `keys`: lista de objetos com `Porta` e `Chave` para cada API.
+- `Prod`: indica se o ambiente é de produção.
+- `SourceFile`: caminho para JSON de rotas existentes (opcional).
+- `KeepExistingRoutes`: se verdadeiro, mantém rotas existentes do `SourceFile`.
 
-- Agrupar várias APIs em um único gateway
-- Definir ambiente de origem (produção ou homologação)
-- Carregar configurações existentes de um arquivo (`SourceFile`)
-- Manter rotas anteriores com a flag `-KeepExistingRoutes`
-
-Essa função utiliza internamente `Export-SwaggerAsOcelot` para transformar cada Swagger individual em um bloco de rota Ocelot válido.
+Retorna: nenhum valor. Gera/atualiza o arquivo `ocelot.json`.
 
 ## Script
 ```powershell
-
-# Define uma classe que representa cada entrada Swagger com porta e chave únicas
+# Classe que representa cada entrada de Swagger a ser processada
 class OcelotEntryKeys {
     [int] $Porta
     [string]$Chave
@@ -31,19 +31,19 @@ class OcelotEntryKeys {
 
 function Export-OcelotEntry {
     param(
-        [OcelotEntryKeys[]]$keys,            # Lista de APIs (porta + chave) a serem exportadas
-        [switch]$Prod,                        # Indica se o ambiente é de produção
-        [string]$SourceFile,                 # Caminho para arquivo existente de configuração (opcional)
-        [switch]$KeepExistingRoutes          # Mantém rotas existentes ao importar de $SourceFile
+        [OcelotEntryKeys[]]$keys,             # Lista de APIs (porta + chave)
+        [switch]$Prod,                         # Ambiente de produção
+        [string]$SourceFile,                  # Caminho para arquivo de origem (opcional)
+        [switch]$KeepExistingRoutes           # Mantém rotas do arquivo anterior
     )
 
     begin {
-        # Valida se KeepExistingRoutes foi usado corretamente
+        # Validação de parâmetros
         if ($KeepExistingRoutes -and -not $SourceFile) {
-            throw "Parâmetros inválidos: KeepExistingRoutes requer o uso de SourceFile."
+            throw "Parâmetros inválidos: KeepExistingRoutes requer SourceFile."
         }
 
-        # Inicializa o objeto de configuração com estrutura esperada pelo Ocelot
+        # Inicializa a estrutura do dicionário de configuração para ocelot.json
         $dictionary = [PSCustomObject]@{
             Routes                = [System.Collections.ArrayList]::new();
             SwaggerEndPoints      = [System.Collections.ArrayList]::new();
@@ -60,24 +60,24 @@ function Export-OcelotEntry {
                 };
                 "RateLimitOptions" = @{
                     "QuotaExceededMessage" = "Limite de requisições excedido. Aguarde e tente novamente.";
-                    "ClientWhitelist"      = @("internal"); # clientes liberados
-                    "ClientIdHeader"       = "client-id-header";
+                    "ClientWhitelist"      = @("internal");  # Lista de clientes permitidos
+                    "ClientIdHeader"       = "client-id-header";  # Nome do header de identificação
                 }
             }
         }
 
-        # Se um arquivo de configuração existente foi informado, tenta carregá-lo
+        # Se um arquivo de origem foi especificado, tenta carregá-lo
         if ($SourceFile) {
             if (Test-Path $SourceFile) {
                 try {
                     Write-Host "Carregando rotas do arquivo de origem: $SourceFile"
                     $existingConfig = Get-Content -Path $SourceFile | ConvertFrom-Json
-
-                    # Filtra rotas: mantém as sem SwaggerKey ou todas, caso KeepExistingRoutes esteja ativo
+                    
+                    # Mantém somente rotas sem SwaggerKey ou todas (se KeepExistingRoutes estiver ativo)
                     $existingRoutes = $existingConfig.Routes | Where-Object { -not $_.SwaggerKey -or $KeepExistingRoutes }
                     $dictionary.Routes.AddRange($existingRoutes) | Out-Null
 
-                    # Adiciona também os SwaggerEndPoints anteriores, se solicitado
+                    # Também adiciona endpoints Swagger antigos, se for o caso
                     if ($KeepExistingRoutes) {
                         $dictionary.SwaggerEndPoints.AddRange($existingConfig.SwaggerEndPoints) | Out-Null
                     }
@@ -93,30 +93,27 @@ function Export-OcelotEntry {
     }
 
     process {
-        # Itera sobre cada API definida na lista $keys
         foreach ($key in $keys) {
             try {
-                # Exporta as definições dessa API para o formato Ocelot
+                # Chama a função Export-SwaggerAsOcelot para obter as rotas da API
                 $dict = $(Export-SwaggerAsOcelot -porta $key.porta -chave $key.chave -ReturnAsObject -Prod:$Prod)
 
-                # Adiciona as rotas e os endpoints Swagger convertidos ao dicionário principal
+                # Adiciona as rotas e endpoints ao dicionário principal
                 $dictionary.Routes.Add($dict.Routes) | Out-Null
                 $dictionary.SwaggerEndPoints.Add($dict.SwaggerEndPoints) | Out-Null
             }
             catch {
-                Write-Error "
-:: Falha ao processar chave $($key.Chave).
-$_"
+                Write-Error ":: Falha ao processar chave $($key.Chave). $_"
             }
         }
 
-        # Converte lista de listas em uma lista única (caso tenha múltiplos arrays de rotas)
+        # Remove possíveis aninhamentos em $dictionary.Routes
         $dictionary.Routes = ConvertTo-FlattenArray $dictionary.Routes
 
-        # Gera JSON compactado com profundidade adequada
+        # Gera JSON formatado para o Ocelot
         $jsonOutput = $dictionary | ConvertTo-Json -Depth 10 -Compress
 
-        # Tenta salvar o resultado no arquivo final
+        # Escreve o conteúdo no arquivo final
         try {
             Set-Content -Path ocelot.json -Value $jsonOutput -Force
             Write-Host "Arquivo gerado com sucesso: ./ocelot.json"
@@ -126,6 +123,28 @@ $_"
         }
     }
 }
-
 ```
+## Dependências
 
+- [[Export-SwaggerAsOcelot]]: função auxiliar responsável por extrair e formatar os dados de uma API.
+- [[ConvertTo-FlattenArray]]: função utilitária que "desaninha" arrays para garantir compatibilidade com o formato JSON final.    
+
+## Exemplos de uso
+
+```powershell
+# Exporta 2 serviços do ambiente de homologação, sobrescrevendo tudo
+Export-OcelotEntry -keys @(
+    [OcelotEntryKeys]@{ Porta = 5001; Chave = "clientes" },
+    [OcelotEntryKeys]@{ Porta = 5002; Chave = "produtos" }
+)
+
+# Atualiza o arquivo existente, mantendo as rotas anteriores
+Export-OcelotEntry -keys @(
+    [OcelotEntryKeys]@{ Porta = 6001; Chave = "vendas" }
+) -SourceFile "./ocelot.json" -KeepExistingRoutes
+
+# Exporta tudo no modo produção
+Export-OcelotEntry -keys @(
+    [OcelotEntryKeys]@{ Porta = 80; Chave = "gateway" }
+) -Prod
+```

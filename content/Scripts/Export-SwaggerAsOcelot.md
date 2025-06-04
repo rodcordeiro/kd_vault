@@ -1,18 +1,24 @@
 ---
-title: Export-SwaggerAsOcelot - Conversão de Swagger para configuração Ocelot
+title: Export-SwaggerAsOcelot – Geração de rotas Ocelot a partir de Swagger
 draft: false
 tags:
   - dev
   - ps1
   - script
-socialDescription: Função PowerShell que consome um Swagger JSON e exporta rotas no formato esperado pelo Ocelot API Gateway.
+socialDescription: Função PowerShell que transforma um Swagger JSON em um conjunto de rotas compatível com Ocelot, incluindo opções de rate limit e Swagger endpoints.
 socialImage: https://rodcordeiro.github.io/shares/img/IMG-20180223-WA0036.jpg
 ---
+
 ## Intuito
+Conecta-se a uma API Swagger via HTTP para extrair a especificação OpenAPI e convertê-la em um objeto de configuração de rotas compatível com o gateway Ocelot.
 
-A função `Export-SwaggerAsOcelot` consome um documento Swagger/OpenAPI (`swagger.json`) de uma aplicação backend e converte automaticamente os endpoints descritos nele para o formato de configuração utilizado pelo [Ocelot API Gateway](https://ocelot.readthedocs.io/en/latest/).
+Parâmetros:
+- `Porta`: porta onde o serviço expõe o Swagger (`/swagger/v1/swagger.json`).
+- `Chave`: nome identificador da API.
+- `Prod`: se ativado, utiliza o domínio de produção para compor a URL base.
+- `ReturnAsObject`: se ativado, retorna o dicionário como objeto PowerShell em vez de salvar no disco.
 
-Ela permite definir o ambiente (produção ou homologação), a chave identificadora da API (`SwaggerKey`) e opcionalmente retorna o objeto em memória ao invés de salvar em disco. Também inclui configuração básica de *rate limiting* para proteger os endpoints.
+Retorno: um objeto contendo `Routes` e `SwaggerEndPoints`, ou um arquivo `.json` com as rotas, salvo no disco.
 
 ## Script
 ```powershell
@@ -20,13 +26,16 @@ function Export-SwaggerAsOcelot {
     param(
         [Parameter(Mandatory, ValueFromPipelineByPropertyName)]
         [int]$Porta,
+
         [Parameter(Mandatory, ValueFromPipelineByPropertyName)]
         [string]$Chave,
+
         [switch]$Prod,
         [switch]$ReturnAsObject
     )
 
     begin {
+        # Define a URL base com base no ambiente
         $url = "backend.xxx.com.br"
         if (!$Prod) {
             $url = "hml.backend.xxx.com.br"
@@ -46,6 +55,7 @@ function Export-SwaggerAsOcelot {
 
         $formattedPaths = @()
 
+        # Converte cada rota do Swagger para o formato aceito pelo Ocelot
         foreach ($path in $openApiSchema.paths.PSObject.Properties) {
             $methods = @()
             foreach ($method in $path.Value.PSObject.Properties) {
@@ -89,7 +99,9 @@ function Export-SwaggerAsOcelot {
     end {
         $jsonOutput = $dictionary | ConvertTo-Json -Depth 10 -Compress
 
-        if ($ReturnAsObject) { return $dictionary }
+        if ($ReturnAsObject) {
+            return $dictionary
+        }
 
         try {
             Set-Content -Path $outputFile -Value $jsonOutput -Force
@@ -99,3 +111,17 @@ function Export-SwaggerAsOcelot {
         }
     }
 }
+```
+  
+## Exemplos de uso
+```powershell
+# Gera o arquivo "clientes.json" com rotas do Swagger em homologação
+Export-SwaggerAsOcelot -Porta 5001 -Chave "clientes"
+
+# Exporta rotas no ambiente de produção e salva no disco
+Export-SwaggerAsOcelot -Porta 80 -Chave "gateway" -Prod
+
+# Retorna o objeto sem gravar no disco
+Export-SwaggerAsOcelot -Porta 6001 -Chave "pedidos" -ReturnAsObject
+
+```
