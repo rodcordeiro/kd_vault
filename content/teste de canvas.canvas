@@ -1,0 +1,11 @@
+{
+	"nodes":[
+		{"id":"f4b18f71e349fdbd","x":-460,"y":-280,"width":400,"height":400,"type":"file","file":"Bem vindo.md"},
+		{"id":"35ef60323f4aca2a","x":-299,"y":-375,"width":250,"height":60,"type":"text","text":""},
+		{"id":"f62c815def1bf067","x":40,"y":-315,"width":250,"height":60,"type":"text","text":""}
+	],
+	"edges":[
+		{"id":"24aa1b4a623a967a","fromNode":"35ef60323f4aca2a","fromSide":"right","toNode":"f62c815def1bf067","toSide":"left"},
+		{"id":"da3a289df0593485","fromNode":"f62c815def1bf067","fromSide":"bottom","toNode":"f4b18f71e349fdbd","toSide":"right"}
+	]
+}
