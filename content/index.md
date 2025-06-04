@@ -5,7 +5,7 @@ tags:
   - example-tag
 description: Combão de informações
 socialDescription: Combão de informações
-socialImage: https://rodcordeiro.github.io/shares/img/paisagem3.jpg
+socialImage: https://rodcordeiro.github.io/shares/img/rodcordeiro.png
 ---
  
 Bem-vindo a minha base de conhecimentos!
