@@ -1,6 +1,6 @@
 ---
 title: {{title}}
-draft: 
+draft: true
 tags:
   - dev
   - ps1
