@@ -7,6 +7,10 @@ tags:
 socialDescription: Script para envio automatizado de pastas como repositórios do Azure DevOps
 socialImage: https://rodcordeiro.github.io/shares/img/IMG-20180223-WA0036.jpg
 ---
+## Intuito
+Ao gerar um backup de diversos repositórios, para enviar para um novo projeto do azure devops, criei um script para mapear todas as pastas e, pasta a pasta, redirecionar o repositórios para o novo projeto, criar o repositório no azure devops e enviar o repositório.
+
+## Script
 ```powershell
 function Mapear-Repositorios {
     param(
