@@ -34,6 +34,9 @@ Esta série organiza um caminho pragmático para criar uma biblioteca mobile com
 3. [[Glossário e decisões - Biblioteca mobile|Glossário e decisões]]
    Vocabulário, decisão arquitetural sobre dependências nativas e limites derivados.
 
+4. [[Helper cn - compondo classes NativeWind|Helper cn - compondo classes NativeWind]]
+   Implementa um helper prático para compor classes NativeWind com condicionais, mapas, arrays e resolução de conflitos.
+
 ## Linha editorial
 
 O guia parte de uma regra simples: a biblioteca deve publicar contratos pequenos, estáveis e sem regra de negócio. Código de autenticação, API, sync, SQLite, telemetria, navegação de tela e fluxos específicos fica no app consumidor.
