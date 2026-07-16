@@ -18,4 +18,5 @@ Observabilidade mobile começa antes do crash. Um bom evento mostra tela, ação
 
 - [[Instrumentando Axios em React Native sem vazar dados|Instrumentando Axios em React Native sem vazar dados]]
 - [[Breadcrumbs e eventos úteis para depurar apps mobile|Breadcrumbs e eventos úteis para depurar apps mobile]]
-
+- [[Maturidade de observabilidade mobile|Maturidade de observabilidade mobile]]
+- [[Correlacionando logcat Sentry e métricas mobile|Correlacionando logcat, Sentry e métricas mobile]]

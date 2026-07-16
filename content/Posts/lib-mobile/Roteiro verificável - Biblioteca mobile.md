@@ -18,7 +18,7 @@ socialImage: https://rodcordeiro.github.io/shares/img/rodcordeiro.png
 
 Roteiro mínimo para criar e publicar uma biblioteca compartilhada de React Native e Expo.
 
-Série: parte 2 de 3. Anterior: [[Guia - Criando uma biblioteca de componentes mobile]]. Próximo: [[Glossário e decisões - Biblioteca mobile]].
+Série: parte 2 de 5. Anterior: [[Guia - Criando uma biblioteca de componentes mobile]]. Próximo: [[Glossário e decisões - Biblioteca mobile]].
 
 Relacionado: [[index|Guia da lib mobile]].
 
@@ -38,7 +38,8 @@ Evidência de saída:
 - [ ] Criar `src/components`, `src/functions`, `src/hooks` e `src/theme`.
 - [ ] Definir `src/index.ts` como única porta pública.
 - [ ] Criar tokens mínimos de cor, tipografia e espaçamento.
-- [ ] Criar ou adotar um helper `cn` para NativeWind.
+- [ ] Definir tokens e `StyleSheet` como base estrutural dos componentes.
+- [ ] Criar ou adotar um helper `cn` para customizações NativeWind.
 - [ ] Declarar React, React Native, Expo, NativeWind e módulos nativos como peers quando aplicável.
 
 Evidência de saída:
@@ -48,7 +49,7 @@ Evidência de saída:
 ## Fase 3 - Primeira API pública
 
 - [ ] Implementar um componente de layout puro.
-- [ ] Implementar um componente de ação com `disabled`, `loading`, acessibilidade e `className`.
+- [ ] Implementar um componente de ação com `StyleSheet` para base/estados críticos, `disabled`, `loading`, acessibilidade e `className` para customização.
 - [ ] Implementar uma função genérica sem regra de negócio.
 - [ ] Implementar um hook genérico, somente se existir um caso compartilhado real.
 - [ ] Exportar componentes, funções, hooks, tokens e tipos em `src/index.ts`.
@@ -89,7 +90,7 @@ O MVP está pronto somente quando:
 - [ ] não existe dependência de regra de negócio ou infraestrutura do app;
 - [ ] CommonJS, ESM e tipos são gerados;
 - [ ] contratos públicos têm testes;
-- [ ] tema e `className` funcionam no consumidor;
+- [ ] base em `StyleSheet`, tema e `className` funcionam no consumidor;
 - [ ] peers e configurações nativas estão documentados;
 - [ ] uma versão publicada foi validada em app piloto.
 

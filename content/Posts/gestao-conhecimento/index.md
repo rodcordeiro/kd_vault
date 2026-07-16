@@ -17,4 +17,4 @@ Conhecimento útil precisa ser reencontrável. A ideia é capturar decisões, in
 
 - [[Transformando memória operacional em post técnico|Transformando memória operacional em post técnico]]
 - [[Como anonimizar aprendizados antes de publicar|Como anonimizar aprendizados antes de publicar]]
-
+- [[../multiagentes/Memória operacional para agentes de código|Memória operacional para agentes de código]]

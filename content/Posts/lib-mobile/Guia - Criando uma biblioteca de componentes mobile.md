@@ -1,7 +1,7 @@
 ---
 title: Criando uma biblioteca de componentes mobile
 draft: false
-description: Guia prático para criar uma biblioteca mobile compartilhada com React Native, Expo, TypeScript, NativeWind e react-native-builder-bob.
+description: Guia prático para criar uma biblioteca mobile compartilhada com React Native, Expo, TypeScript, StyleSheet, NativeWind e react-native-builder-bob.
 tags:
   - dev
   - mobile
@@ -9,17 +9,17 @@ tags:
   - expo
   - lib-mobile
   - serie
-socialDescription: Guia prático para criar uma biblioteca mobile compartilhada com React Native, Expo, TypeScript, NativeWind e react-native-builder-bob.
+socialDescription: Guia prático para criar uma biblioteca mobile compartilhada com React Native, Expo, TypeScript, StyleSheet, NativeWind e react-native-builder-bob.
 socialImage: https://rodcordeiro.github.io/shares/img/rodcordeiro.png
 ---
 
 # Criando uma biblioteca de componentes mobile
 
-Este guia mostra como criar do zero uma biblioteca compartilhada para aplicações React Native e Expo. O caminho principal usa Expo 53+, React 19+, React Native 0.79+, TypeScript, NativeWind e `react-native-builder-bob`.
+Este guia mostra como criar do zero uma biblioteca compartilhada para aplicações React Native e Expo. O caminho principal usa Expo 53+, React 19+, React Native 0.79+, TypeScript, `StyleSheet`, NativeWind e `react-native-builder-bob`.
 
 O guia usa uma biblioteca de componentes fictícia como estudo de caso, inspirada em práticas validadas em aplicações reais: separação entre tema, componentes, funções, hooks e integrações nativas. Os nomes, pacotes e exemplos são genéricos para que o desenho possa ser reutilizado em qualquer contexto.
 
-Série: parte 1 de 3. Próximo: [[Roteiro verificável - Biblioteca mobile]].
+Série: parte 1 de 5. Próximo: [[Roteiro verificável - Biblioteca mobile]].
 
 Veja também:
 
@@ -125,9 +125,9 @@ Dependências nativas também são contratos do consumidor. Se a biblioteca expu
 
 Mantenha em `dependencies` apenas pacotes realmente incorporados à implementação da biblioteca.
 
-## 5. Estabilize o tema primeiro
+## 5. Estabilize o tema e a base visual primeiro
 
-Comece por cores, tipografia, espaçamento e composição de classes. Exponha tokens para situações em que classes NativeWind não sejam suficientes:
+Comece por cores, tipografia, espaçamento e estilos estruturais. Em uma biblioteca de componentes, a base interna deve ser estável mesmo quando o app consumidor ainda não compilou classes customizadas do NativeWind. Por isso, prefira `StyleSheet` com tokens para estrutura, medidas mínimas, bordas, cores essenciais e estados críticos.
 
 ```ts
 export const COLORS = {
@@ -136,13 +136,16 @@ export const COLORS = {
 } as const
 ```
 
-Use um helper `cn` para combinar classes condicionais e resolver conflitos:
+Use NativeWind para layout geral e customizações expostas ao consumidor, especialmente quando o componente aceita `className`:
 
 ```tsx
-<Pressable className={cn("px-4 py-3", disabled && "opacity-50", className)} />
+<Pressable
+  style={[styles.base, variantStyle, style]}
+  className={cn("self-stretch", className)}
+/>
 ```
 
-Classes customizadas dependem do tema compilado pelo app consumidor. Para APIs nativas, SVGs ou estilos que não podem depender desse CSS, use tokens com `StyleSheet`.
+Classes customizadas dependem do tema compilado pelo app consumidor. Para APIs nativas, SVGs, estados desabilitados, cálculo de posição, dimensões mínimas e cores essenciais do contrato, use tokens com `StyleSheet`.
 
 ## 6. Crie a primeira API pública
 
@@ -165,6 +168,7 @@ Comece com contratos pequenos como `Button`, `Divider`, `Container` e `TextRow`.
 Um componente público deve:
 
 - receber comportamento por props;
+- usar `StyleSheet` para estrutura base e estilos que não podem depender do tema compilado do consumidor;
 - preservar `className` quando houver customização NativeWind;
 - não importar aliases ou serviços do app;
 - evitar efeitos colaterais de domínio;
@@ -177,6 +181,7 @@ Exemplo:
 type ButtonProps = PressableProps & {
   title: string
   loading?: boolean
+  className?: string
 }
 
 export function Button({ title, loading = false, className, ...props }: ButtonProps) {
@@ -185,12 +190,23 @@ export function Button({ title, loading = false, className, ...props }: ButtonPr
       {...props}
       accessibilityRole="button"
       disabled={props.disabled || loading}
-      className={cn("items-center px-4 py-3", className)}
+      style={[styles.base, props.style]}
+      className={cn("self-stretch", className)}
     >
       {loading ? <ActivityIndicator /> : <Text>{title}</Text>}
     </Pressable>
   )
 }
+
+const styles = StyleSheet.create({
+  base: {
+    minHeight: 52,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+  },
+})
 ```
 
 ## 8. Adicione funções e hooks genéricos
@@ -241,8 +257,9 @@ Uma biblioteca mobile compartilhada validada em apps reais tende a se apoiar nes
 - `src/index.ts` como única porta pública;
 - separação entre `components`, `functions`, `hooks` e `theme`;
 - `react`, `react-native`, Expo e módulos nativos como peers;
-- `cn` para composição de classes;
-- `COLORS` e `StyleSheet` quando uma classe customizada não está disponível no CSS do consumidor;
+- `StyleSheet` e `COLORS` como base estrutural dos componentes;
+- `cn` para composição de customizações NativeWind e classes recebidas por `className`;
+- NativeWind reservado para layout geral, ajustes do consumidor e composição visual não crítica;
 - remoção de aliases e regras dos apps durante a migração;
 - build CommonJS, ESM e TypeScript;
 - testes e validação em apps piloto antes de ampliar o catálogo.

@@ -18,7 +18,7 @@ socialImage: https://rodcordeiro.github.io/shares/img/rodcordeiro.png
 
 Vocabulário e decisão arquitetural usados em [[Guia - Criando uma biblioteca de componentes mobile]] e [[Roteiro verificável - Biblioteca mobile]].
 
-Série: parte 3 de 3. Anterior: [[Roteiro verificável - Biblioteca mobile]]. Voltar para [[index|Guia da lib mobile]].
+Série: parte 3 de 5. Anterior: [[Roteiro verificável - Biblioteca mobile]]. Próximo: [[Helper cn - compondo classes NativeWind]].
 
 ## Linguagem
 
@@ -73,10 +73,13 @@ Uma biblioteca mobile pode expor wrappers para câmera, áudio e outras capacida
 - A biblioteca não aplica plugins Expo pelo consumidor.
 - Um wrapper nativo não entra no MVP sem necessidade comprovada.
 - Código de auth, API, sync, SQLite e telemetria permanece no app.
+- Componentes públicos usam `StyleSheet` como base estrutural quando o estilo precisa ser estável, nativo ou independente do tema compilado pelo consumidor.
+- NativeWind fica reservado para layout geral, customizações via `className` e composição visual não crítica.
 - Uma classe NativeWind customizada depende do tema compilado pelo consumidor; tokens com `StyleSheet` são a saída segura quando essa garantia não existe.
 - App exemplo acelera desenvolvimento, mas app piloto valida o contrato real de distribuição.
 
 ---
 
-Série: [[index|Guia da lib mobile]]  
+Série: [[index|Guia da lib mobile]]
 Anterior: [[Roteiro verificável - Biblioteca mobile]]
+Próximo: [[Helper cn - compondo classes NativeWind]]

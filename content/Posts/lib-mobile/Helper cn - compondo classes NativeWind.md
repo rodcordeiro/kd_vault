@@ -1,7 +1,7 @@
 ---
 title: Helper cn - compondo classes NativeWind
 draft: false
-description: Post prático para criar e usar um helper cn em uma biblioteca React Native com NativeWind, incluindo conflitos de classes, condicionais e exemplos reais.
+description: Post prático para criar e usar um helper cn em uma biblioteca React Native com NativeWind, mantendo StyleSheet como base estrutural.
 tags:
   - dev
   - mobile
@@ -16,7 +16,13 @@ socialImage: https://rodcordeiro.github.io/shares/img/rodcordeiro.png
 
 # Helper cn - compondo classes NativeWind
 
-Em uma biblioteca de componentes React Native com NativeWind, quase todo componente público acaba precisando combinar classes internas com classes recebidas por props.
+Em uma biblioteca de componentes React Native com NativeWind, `cn` continua útil, mas ele não precisa carregar a estrutura base do componente.
+
+A diretriz mais segura é:
+
+- `StyleSheet` para base estrutural, medidas mínimas, cores essenciais, bordas e estados críticos;
+- NativeWind para layout geral, ajustes do consumidor e customizações expostas por `className`;
+- `cn` para compor essas customizações sem espalhar concatenação manual.
 
 O problema parece pequeno:
 
@@ -41,7 +47,7 @@ import { cn } from "@acme/mobile-ui"
 />
 ```
 
-Neste exemplo, o componente declara suas classes base, aplica estados e variantes por condição, e ainda permite que o consumidor envie `className`.
+Neste exemplo, o componente compõe classes de customização e ainda permite que o consumidor envie `className`. Para a base do componente, prefira `StyleSheet`.
 
 ## O contrato público
 
@@ -400,9 +406,11 @@ Mesmo que a variante venha depois, o estado desabilitado continua mandando no ba
 
 ## Uso em um Button
 
-Em um componente público, prefira guardar estilos em um objeto e compor no JSX:
+Em um componente público, prefira guardar a base estrutural em `StyleSheet` e usar `cn` apenas para a camada NativeWind/customização:
 
 ```tsx
+import { ActivityIndicator, Pressable, PressableProps, StyleSheet, Text } from "react-native"
+
 type ButtonVariant = "contained" | "outlined" | "text" | "secondary"
 
 type ButtonProps = {
@@ -428,53 +436,84 @@ export function Button({
       disabled={isDisabled}
       accessibilityRole="button"
       accessibilityState={{ disabled: isDisabled, busy: loading }}
+      style={[nativeStyles.base, getVariantStyle(variant, isDisabled), props.style]}
       className={cn(
-        styles.base,
-        isDisabled && styles.disabled,
-        variant === "contained" && styles.contained,
-        variant === "secondary" && styles.secondary,
-        variant === "outlined" && styles.outlined,
-        variant === "text" && styles.text,
+        "self-stretch",
         className,
       )}
     >
-      <Text
-        className={cn(
-          styles.textBase,
-          isDisabled && styles.textDisabled,
-          (variant === "contained" || variant === "secondary") && styles.textContained,
-          variant === "outlined" && styles.textOutlined,
-          variant === "text" && styles.textOnly,
-        )}
-      >
-        {title}
-      </Text>
+      {loading ? (
+        <ActivityIndicator size="small" color={getTextColor(variant, isDisabled)} />
+      ) : (
+        <Text
+          style={getTextStyle(variant, isDisabled)}
+          className="text-center text-md font-semibold"
+        >
+          {title}
+        </Text>
+      )}
     </Pressable>
   )
 }
 
-const styles = {
-  base: "items-center rounded-none shadow-md p-4 border",
-  contained: "bg-color_primary_01 text-white border-color_primary_01",
-  secondary: "bg-color_primary_02 text-white border-color_primary_02",
-  outlined: "border-color_primary_01 border-2",
-  text: "bg-transparent shadow-none border-0",
-  textBase: "text-md font-semibold text-center",
-  disabled: "!bg-color_neutral_04 !border-color_neutral_04 text-white",
-  textDisabled: "text-white",
-  textContained: "text-white",
-  textOutlined: "text-color_primary_01",
-  textOnly: "text-color_primary_01 font-semibold",
+function getVariantStyle(variant: ButtonVariant, disabled: boolean) {
+  if (disabled) return nativeStyles.disabled
+  if (variant === "outlined") return nativeStyles.outlined
+  if (variant === "text") return nativeStyles.text
+  if (variant === "secondary") return nativeStyles.secondary
+  return nativeStyles.contained
 }
+
+function getTextColor(variant: ButtonVariant, disabled: boolean) {
+  if (disabled || variant === "contained" || variant === "secondary") return "#ffffff"
+  return "#2563eb"
+}
+
+function getTextStyle(variant: ButtonVariant, disabled: boolean) {
+  return { color: getTextColor(variant, disabled) }
+}
+
+const nativeStyles = StyleSheet.create({
+  base: {
+    minHeight: 52,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderWidth: 1,
+  },
+  contained: {
+    backgroundColor: "#2563eb",
+    borderColor: "#2563eb",
+  },
+  secondary: {
+    backgroundColor: "#334155",
+    borderColor: "#334155",
+  },
+  outlined: {
+    backgroundColor: "transparent",
+    borderColor: "#2563eb",
+    borderWidth: 2,
+  },
+  text: {
+    backgroundColor: "transparent",
+    borderColor: "transparent",
+    borderWidth: 0,
+  },
+  disabled: {
+    backgroundColor: "#9ca3af",
+    borderColor: "#9ca3af",
+  },
+})
 ```
 
 O componente fica previsível:
 
-- a base sempre entra;
-- estados entram por booleanos;
+- a base estrutural não depende do tema NativeWind do consumidor;
+- estados críticos usam objetos nativos e tokens;
 - variantes entram por comparação explícita;
-- `className` fica por último para permitir extensão pelo consumidor;
-- classes importantes protegem estados que não devem ser sobrescritos por uma variante comum.
+- `className` fica reservado para customização e layout externo;
+- `cn` continua resolvendo condicionais e conflitos quando a camada NativeWind é usada.
 
 ## Uso no app consumidor
 
@@ -566,9 +605,10 @@ Use `cn` quando:
 - estados como `disabled`, `loading` ou `selected` alterarem classes;
 - você precisar evitar conflitos previsíveis de spacing, cor, borda, texto, fonte ou flex.
 
-Não use `cn` para esconder regra de negócio. Ele deve compor classe visual, não decidir fluxo, permissão ou estado de domínio.
+Não use `cn` para esconder regra de negócio nem para substituir `StyleSheet` em base estrutural de biblioteca. Ele deve compor classe visual, não decidir fluxo, permissão ou estado de domínio.
 
 ---
 
-Série: [[index|Guia da lib mobile]]  
+Série: [[index|Guia da lib mobile]]
 Anterior: [[Glossário e decisões - Biblioteca mobile]]
+Próximo: [[StyleSheet como base e NativeWind como customização]]

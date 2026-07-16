@@ -46,6 +46,12 @@ A média costuma esconder o usuário que sofre. `p95` e `p99` mostram onde o app
 6. [[Playbook de investigação com p95 e p99|Playbook de investigação com p95 e p99]]
    Roteiro para transformar uma regressão de p95/p99 em hipótese, recorte e correção.
 
+7. [[Worklets e JS thread em React Native|Worklets e JS thread em React Native]]
+   Explica quando worklets ajudam em animações, gestos e processamento frequente sem depender da JS thread.
+
+8. [[Profilando ANR e travamentos em Android|Profilando ANR e travamentos em Android]]
+   Roteiro para investigar travamentos, ANRs, logcat, JS thread, UI thread e profiler nativo.
+
 ## Linha editorial
 
 Métrica mobile precisa de contexto. Um número sem `app.version`, `platform`, `device_model`, `os_version`, rede e tela vira ruído.

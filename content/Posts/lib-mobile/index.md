@@ -20,7 +20,7 @@ Esta série organiza um caminho pragmático para criar uma biblioteca mobile com
 ## Para quem é
 
 - Times que precisam compartilhar componentes, funções, hooks e tokens entre apps mobile.
-- Pessoas criando uma lib com Expo, React Native, TypeScript, NativeWind e `react-native-builder-bob`.
+- Pessoas criando uma lib com Expo, React Native, TypeScript, `StyleSheet`, NativeWind e `react-native-builder-bob`.
 - Tech leads avaliando o que deve virar contrato público e o que deve continuar no app consumidor.
 
 ## Série
@@ -35,10 +35,13 @@ Esta série organiza um caminho pragmático para criar uma biblioteca mobile com
    Vocabulário, decisão arquitetural sobre dependências nativas e limites derivados.
 
 4. [[Helper cn - compondo classes NativeWind|Helper cn - compondo classes NativeWind]]
-   Implementa um helper prático para compor classes NativeWind com condicionais, mapas, arrays e resolução de conflitos.
+   Implementa um helper prático para compor customizações NativeWind com condicionais, mapas, arrays e resolução de conflitos.
+
+5. [[StyleSheet como base e NativeWind como customização|StyleSheet como base e NativeWind como customização]]
+   Define a divisão recomendada entre estrutura interna estável, tokens nativos e customização visual pelo consumidor.
 
 ## Linha editorial
 
-O guia parte de uma regra simples: a biblioteca deve publicar contratos pequenos, estáveis e sem regra de negócio. Código de autenticação, API, sync, SQLite, telemetria, navegação de tela e fluxos específicos fica no app consumidor.
+O guia parte de uma regra simples: a biblioteca deve publicar contratos pequenos, estáveis e sem regra de negócio. A estrutura visual base dos componentes deve ser previsível e nativa, preferencialmente com `StyleSheet` e tokens. NativeWind entra como camada de layout e customização quando o contrato expõe `className`.
 
 O MVP só é confiável quando a versão publicada instala, tipa, renderiza e roda em um app piloto real, consumindo apenas exports da raiz do pacote.
