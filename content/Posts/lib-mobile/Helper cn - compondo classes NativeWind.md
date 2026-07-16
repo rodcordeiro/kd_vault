@@ -29,7 +29,7 @@ Mas esse formato escala mal. Ele deixa strings vazias no meio, dificulta condici
 Um helper `cn` resolve esse trabalho em um ponto único.
 
 ```tsx
-import { cn } from "@ti_torra/mobile"
+import { cn } from "@acme/mobile-ui"
 
 <Pressable
   className={cn(
@@ -54,10 +54,10 @@ export { cn } from "./theme/cn"
 Assim, o app consumidor usa apenas a API pública:
 
 ```tsx
-import { Button, cn } from "@ti_torra/mobile"
+import { Button, cn } from "@acme/mobile-ui"
 ```
 
-Evite importar de caminhos internos como `@ti_torra/mobile/src/theme/cn`. A biblioteca precisa poder reorganizar arquivos sem quebrar quem consome.
+Evite importar de caminhos internos como `@acme/mobile-ui/src/theme/cn`. A biblioteca precisa poder reorganizar arquivos sem quebrar quem consome.
 
 ## Implementação completa
 
@@ -481,7 +481,7 @@ O componente fica previsível:
 O app pode importar o helper para montar classes locais com a mesma regra da biblioteca:
 
 ```tsx
-import { cn } from "@ti_torra/mobile"
+import { cn } from "@acme/mobile-ui"
 
 type StatusPillProps = {
   status: "success" | "warning" | "error"

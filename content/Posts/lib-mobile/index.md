@@ -15,7 +15,7 @@ socialImage: https://rodcordeiro.github.io/shares/img/rodcordeiro.png
 
 # Guia da lib mobile
 
-Esta série organiza um caminho pragmático para criar uma biblioteca mobile compartilhada para React Native e Expo. A referência prática é a `Torra.Components.Mobile`, mas os critérios foram escritos para funcionar em qualquer organização que precise reduzir duplicação sem transformar a lib em um app base.
+Esta série organiza um caminho pragmático para criar uma biblioteca mobile compartilhada para React Native e Expo. A referência prática é uma biblioteca de componentes usada em apps reais, mas os nomes, pacotes e exemplos foram generalizados para funcionar em qualquer organização que precise reduzir duplicação sem transformar a lib em um app base.
 
 ## Para quem é
 

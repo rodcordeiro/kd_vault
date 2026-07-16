@@ -17,7 +17,7 @@ socialImage: https://rodcordeiro.github.io/shares/img/rodcordeiro.png
 
 Este guia mostra como criar do zero uma biblioteca compartilhada para aplicações React Native e Expo. O caminho principal usa Expo 53+, React 19+, React Native 0.79+, TypeScript, NativeWind e `react-native-builder-bob`.
 
-A `Torra.Components.Mobile` aparece como estudo de caso porque já validou, em aplicações reais, a separação entre tema, componentes, funções, hooks e integrações nativas. Os nomes e exemplos são genéricos para que o desenho possa ser reutilizado fora da Torra.
+O guia usa uma biblioteca de componentes fictícia como estudo de caso, inspirada em práticas validadas em aplicações reais: separação entre tema, componentes, funções, hooks e integrações nativas. Os nomes, pacotes e exemplos são genéricos para que o desenho possa ser reutilizado em qualquer contexto.
 
 Série: parte 1 de 3. Próximo: [[Roteiro verificável - Biblioteca mobile]].
 
@@ -234,9 +234,9 @@ Use versionamento semântico:
 
 O pipeline deve instalar com lockfile, executar lint, testes e build, e só então publicar no registro escolhido.
 
-## Estudo de caso: Torra.Components.Mobile
+## Estudo de caso: biblioteca mobile compartilhada
 
-A biblioteca Torra validou estas práticas:
+Uma biblioteca mobile compartilhada validada em apps reais tende a se apoiar nestas práticas:
 
 - `src/index.ts` como única porta pública;
 - separação entre `components`, `functions`, `hooks` e `theme`;
